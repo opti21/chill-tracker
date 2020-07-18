@@ -54,8 +54,10 @@ function loggedIn(req, res, next) {
 
 //Routes
 app.get("/", async (req, res) => {
+  let loggedInUser = req.user || false;
+  let dailyLogs = await DailyLog.find().limit(10);
   res.render("feed", {
-    loggedInUser: req.user.login,
+    loggedInUser: loggedInUser,
     dailyLogs: dailyLogs,
   });
 });
@@ -205,12 +207,8 @@ passport.use(
                 twitch_id: profile.id,
                 username: profile.login,
                 display_name: profile.display_name,
-                email: profile.email,
                 profile_pic_url: profile.profile_image_url,
                 provider: "twitch",
-                twitch: profile,
-                accessToken: accessToken,
-                refreshToken: refreshToken,
               });
               console.log("New user created");
 
@@ -218,7 +216,6 @@ passport.use(
               return done(null, profile);
             } else {
               console.log("User already exists");
-              console.log(UserSearch.twitch_id);
               return done(null, profile);
             }
           })
