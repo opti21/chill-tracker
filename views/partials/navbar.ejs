@@ -1,0 +1,36 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="/feed">Chill Tracker</a>
+  <button
+    class="navbar-toggler"
+    type="button"
+    data-toggle="collapse"
+    data-target="#navbarText"
+    aria-controls="navbarText"
+    aria-expanded="false"
+    aria-label="Toggle navigation"
+  >
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarText">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item">
+        <a class="nav-link" href="/feed"
+          >Feed
+          <!--<span class="sr-only">(current)</span>--></a
+        >
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/your-page">Your Page</a>
+      </li>
+    </ul>
+    <span class="navbar-text">
+      <% if(!loggedInUser) {%>
+      <a href="/auth/twitch" class="btn btn-primary text-white"
+        >Login with Twitch</a
+      >
+      <% } else { %> <%= loggedInUser.login %>
+      <a href="/logout" class="btn btn-danger text-white btn-sm">Logout</a> <% }
+      %>
+    </span>
+  </div>
+</nav>

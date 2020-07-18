@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Your Page</title>
+    <%- include('./partials/head') %>
+  </head>
+  <body>
+    <div class="container">
+      <%- include('./partials/navbar') %>
+      <h1><%= publicUser %>'s logs</h1>
+      <br />
+      <h2><%= publicUser %></h2>
+      <div id="logsdiv" class="d-flex flex-wrap"></div>
+    </div>
+    <div id="pageInfo" data-user="<%= publicUser %>"></div>
+    <script src="/js/publicuser.js"></script>
+  </body>
+</html>

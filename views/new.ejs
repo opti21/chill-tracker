@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>New Daily Log</title>
+    <%- include('./partials/head') %>
+  </head>
+  <body>
+    <div class="container">
+      <%- include('./partials/navbar') %>
+      <h1>New Daily Log for Day <%= day %></h1>
+      <br />
+      <form action="/newlog?day=<%= day %>" method="POST" style="width: 400px;">
+        <div class="form-group">
+          <label for="logTextarea">Log text</label>
+          <textarea
+            class="form-control"
+            id="logTextarea"
+            rows="3"
+            name="logtext"
+            required
+          ></textarea>
+        </div>
+        <div class="form-group">
+          <label for="proofInput">Proof</label>
+          <input
+            class="form-control"
+            type="url"
+            id="proofInput"
+            placeholder="Do you have any proof?"
+            name="proof"
+          />
+          <small id="proofHelpBlock" class="form-text text-muted">
+            Must be a URL to a picture
+          </small>
+          <small id="proofHelpBlock" class="form-text text-muted">
+            If your proof is a picture you can upload it to imgur
+            <a href="https://imgur.com/upload" target="blank"
+              >by clicking here.</a
+            >
+            and submiting the link to the image.
+          </small>
+        </div>
+        <button type="submit" class="btn btn-primary my-1">Submit</button>
+      </form>
+    </div>
+  </body>
+</html>

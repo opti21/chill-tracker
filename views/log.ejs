@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= loggedInUser %>'s log</title>
+    <%- include('./partials/head') %>
+  </head>
+  <body>
+    <div class="container">
+      <%- include('./partials/navbar') %>
+      <h1><%= loggedInUser %>'s Day <%= dailyLog.day %> Log</h1>
+      <% if(logOwner) {%>
+      <!-- <a href="/editlog/<%= dailyLog.day %>" class="btn btn-primary"
+        >Edit <%= dailyLog.day %></a
+      > -->
+      <% } %>
+      <br />
+      <div class="card mb-3 w-100">
+        <div class="card-body">
+          <p class="card-text">
+            <%= dailyLog.text %>
+          </p>
+          <p class="card-text">
+            Proof: <%= dailyLog.proof %>
+          </p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

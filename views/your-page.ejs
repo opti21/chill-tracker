@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Your Page</title>
+    <%- include('./partials/head') %>
+  </head>
+  <body>
+    <div class="container">
+      <%- include('./partials/navbar') %>
+      <h1>Your Page</h1>
+      <br />
+      <h2>Hey there, <%= loggedInUser %>!</h2>
+      <div id="logsdiv" class="d-flex flex-wrap"></div>
+    </div>
+    <script src="/js/yourpage.js"></script>
+  </body>
+</html>
