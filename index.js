@@ -37,6 +37,7 @@ mongoose
       useNewUrlParser: true,
       useUnifiedTopology: true,
       useCreateIndex: true,
+      autoReconnect: true,
     }
   )
   .catch(function (err) {
