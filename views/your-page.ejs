@@ -12,6 +12,32 @@
       <h1>Your Page</h1>
       <br />
       <h2>Hey there, <%= loggedInUser %>!</h2>
+      <br />
+      <% if(hasTask) { %>
+      <h2>Your daily task is: <%= task %></h2>
+      <% } else {%>
+      <h3>What is your daily challenge?</h3>
+      <p>**This can't be changed** (unless you ask nicely)</p>
+      <p>It wiil show up like "Day 23 of (your task here)"</p>
+      <form
+        action="api/add-task/<%= loggedInUser %> "
+        method="post"
+        class="m-2"
+        style="width: 200px;"
+      >
+        <input
+          type="text"
+          class="form-control m-2"
+          name="task"
+          id="taskinput"
+          placeholder="Daily Challenge"
+        />
+
+        <button type="submit" class="btn btn-primary m-2">Submit</button>
+      </form>
+      <% } %>
+
+      <br />
       <div id="logsdiv" class="d-flex flex-wrap"></div>
     </div>
     <script src="/js/yourpage.js"></script>

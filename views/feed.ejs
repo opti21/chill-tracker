@@ -13,12 +13,15 @@
       <p>Add your latest log on <a href="/your-page">Your Page</a></p>
       <h3>Latest 10 logs</h3>
       <% dailyLogs.forEach(log => { %>
-      <div class="card mb-3 w-100">
+      <div id="<%= log.user %>day<%= log.day %>" class="card mb-3 w-100">
         <div class="card-header">
           <a href="/user/<%= log.user %>"><%= log.user %></a>
         </div>
         <div class="card-body">
-          <h5 class="card-title">Day <%= log.day %> log</h5>
+          <h5 class="card-title">
+            Day <%= log.day %> of
+            <span id="<%= log.user %>task"></span>
+          </h5>
           <p class="card-text">
             <%= log.text %>
           </p>
@@ -32,5 +35,6 @@
       </div>
       <% }) %>
     </div>
+    <script src="/js/feed.js"></script>
   </body>
 </html>

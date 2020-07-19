@@ -37,8 +37,9 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  accessToken: String,
-  refreshToken: String,
+  task: {
+    type: String,
+  },
 });
 
 // userSchema.index({ expireAt: 1 }, { expireAfterSeconds: 0 });

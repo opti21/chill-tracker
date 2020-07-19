@@ -83,10 +83,19 @@ app.get("/feed", async (req, res) => {
 
 app.get("/your-page", loggedIn, async (req, res) => {
   let dailyLogs = await DailyLog.find({ user: req.user.login });
+  let user = await User.findOne({ username: req.user.login }, "task -_id");
+  let hasTask;
+  if (user.task === undefined) {
+    hasTask = false;
+  } else {
+    hasTask = true;
+  }
   console.log(dailyLogs);
   res.render("your-page", {
     loggedInUser: req.user.login,
     logs: dailyLogs,
+    hasTask: hasTask,
+    task: user.task,
   });
 });
 
@@ -136,6 +145,30 @@ app.post(
       console.log("New log");
       res.redirect("/your-page?success=true");
     });
+  }
+);
+
+app.post(
+  "/api/add-task/:user",
+  loggedIn,
+  [body("task").isString().trim()],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+    User.findOneAndUpdate(
+      { username: req.params.user },
+      { task: req.body.task },
+      { new: true, useFindAndModify: false }
+    )
+      .then((doc) => {
+        res.redirect("/your-page");
+      })
+      .catch((err) => {
+        console.error(err);
+        res.status(500).send("Error adding Task");
+      });
   }
 );
 
@@ -191,6 +224,11 @@ app.get("/api/stats", async (req, res) => {
   res.status(200).send(stats);
 });
 
+app.get("/api/user-tasks", async (req, res) => {
+  let tasks = await User.find({}, "username task -_id");
+  res.send(tasks);
+});
+
 app.get("/logout", async function (req, res) {
   try {
     req.session = null;
@@ -218,7 +256,7 @@ passport.use(
       callbackURL: `${process.env.APP_URL}/auth/twitch/callback`,
       scope: "",
     },
-    async function (accessToken, refreshToken, profile, done) {
+    async function (profile, done) {
       try {
         User.findOne({ twitch_id: profile.id })
           .exec()
