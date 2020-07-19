@@ -37,7 +37,6 @@ mongoose
       useNewUrlParser: true,
       useUnifiedTopology: true,
       useCreateIndex: true,
-      autoReconnect: true,
     }
   )
   .catch(function (err) {
@@ -98,14 +97,19 @@ app.get("/new/:day", loggedIn, (req, res) => {
   });
 });
 
+app.get("/stats", (req, res) => {
+  let loggedInUser = req.user || false;
+  res.render("stats", {
+    loggedInUser: loggedInUser,
+  });
+});
+
 app.post(
   "/newlog",
   loggedIn,
   [
     body("logtext").isString().not().isEmpty().trim().escape(),
-    body("proof")
-      .isURL({ protocols: ["https"], require_protocol: true })
-      .trim(),
+    body("proof").isString().trim().escape(),
   ],
   (req, res) => {
     const errors = validationResult(req);
@@ -169,6 +173,16 @@ app.get("/api/logs", loggedIn, async (req, res) => {
 app.get("/api/logs/:user", async (req, res) => {
   let dailyLogs = await DailyLog.find({ user: req.params.user });
   res.status(200).send(dailyLogs);
+});
+
+app.get("/api/stats", async (req, res) => {
+  let users = await User.find({}, "username profile_pic_url -_id");
+  let logs = await DailyLog.find({}, "-_id");
+  let stats = {
+    users: users,
+    logs: logs,
+  };
+  res.status(200).send(stats);
 });
 
 app.get("/logout", async function (req, res) {
