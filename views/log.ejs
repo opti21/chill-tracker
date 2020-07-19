@@ -7,8 +7,8 @@
     <%- include('./partials/head') %>
   </head>
   <body>
+    <%- include('./partials/navbar') %>
     <div class="container">
-      <%- include('./partials/navbar') %>
       <h1><%= logOwner %>'s Day <%= dailyLog.day %> Log</h1>
       <% if(isLogOwner) {%>
       <!-- <a href="/editlog/<%= dailyLog.day %>" class="btn btn-primary"
