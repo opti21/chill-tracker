@@ -11,6 +11,10 @@
       <%- include('./partials/navbar') %>
       <h1>New Daily Log for Day <%= day %></h1>
       <br />
+      <p>
+        You can only submit once, so if you did multiple things in a day submit
+        them all. You can put links to proof in the log text if you'd like
+      </p>
       <form action="/newlog?day=<%= day %>" method="POST" style="width: 400px;">
         <div class="form-group">
           <label for="logTextarea">Log text</label>
