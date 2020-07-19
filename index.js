@@ -55,7 +55,7 @@ function loggedIn(req, res, next) {
 //Routes
 app.get("/", async (req, res) => {
   let loggedInUser = req.user || false;
-  let dailyLogs = await DailyLog.find().limit(10);
+  let dailyLogs = await DailyLog.find().limit(10).sort({ createdAt: -1 });
   res.render("feed", {
     loggedInUser: loggedInUser,
     dailyLogs: dailyLogs,
