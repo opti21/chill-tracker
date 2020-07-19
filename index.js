@@ -108,30 +108,36 @@ app.post(
   "/newlog",
   loggedIn,
   [
-    body("logtext").isString().not().isEmpty().trim().escape(),
-    body("proof").isString().trim().escape(),
+    body("logtext").isString().not().isEmpty().trim(),
+    body("proof").isString().trim(),
   ],
   (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(422).json({ errors: errors.array() });
     }
+    let exists = DailyLog.exists({ user: req.user.login, day: req.query.day });
 
-    let newLog = new DailyLog({
-      user: req.user.login,
-      day: req.query.day,
-      text: req.body.logtext,
-      proof: req.body.proof,
-    });
-    newLog.save((err) => {
-      if (err) {
-        console.error(err);
-        res.status(500).send("Error creating new log");
-      }
+    if (!exists) {
+      let newLog = new DailyLog({
+        user: req.user.login,
+        day: req.query.day,
+        text: req.body.logtext,
+        proof: req.body.proof,
+      });
+      newLog.save((err) => {
+        if (err) {
+          console.error(err);
+          res.status(500).send("Error creating new log");
+        }
 
-      console.log("New log");
-      res.redirect("/your-page?success=true");
-    });
+        console.log("New log");
+        res.redirect("/your-page?success=true");
+      });
+    } else {
+      console.log("say already exists");
+      res.status(422).send("Day already exists");
+    }
   }
 );
 
@@ -151,17 +157,19 @@ app.get("/log/:user/:day", loggedIn, async (req, res) => {
     user: req.params.user,
     day: req.params.day,
   });
-  let logOwner;
+  let isLogOwner;
   if (req.user.login === req.params.user) {
     logOwner = true;
   } else {
     logOwner = false;
   }
+  dailyLog.proof = decodeURIComponent(dailyLog.proof);
   res.render("log", {
     loggedInUser: req.user.login,
     loggedInUserPic: req.user.profile_pic_url,
     dailyLog: dailyLog,
-    logOwner: logOwner,
+    isLogOwner: isLogOwner,
+    logOwner: req.params.user,
   });
 });
 

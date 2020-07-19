@@ -9,8 +9,8 @@
   <body>
     <div class="container">
       <%- include('./partials/navbar') %>
-      <h1><%= loggedInUser %>'s Day <%= dailyLog.day %> Log</h1>
-      <% if(logOwner) {%>
+      <h1><%= logOwner %>'s Day <%= dailyLog.day %> Log</h1>
+      <% if(isLogOwner) {%>
       <!-- <a href="/editlog/<%= dailyLog.day %>" class="btn btn-primary"
         >Edit <%= dailyLog.day %></a
       > -->
@@ -22,7 +22,10 @@
             <%= dailyLog.text %>
           </p>
           <p class="card-text">
-            Proof: <%= dailyLog.proof %>
+            Proof:
+            <a href="<%= decodeURIComponent(dailyLog.proof) %>"
+              ><%= decodeURIComponent(dailyLog.proof) %></a
+            >
           </p>
         </div>
       </div>
