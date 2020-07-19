@@ -10,6 +10,28 @@
     <div class="container">
       <%- include('./partials/navbar') %>
       <h1>Community Stats</h1>
+      <div id="statCounter" class="d-flex flex-wrap m-1" style="">
+        <div
+          id="user-counter"
+          class="border m-2 text-center flex-fill"
+          style="height: 200px; min-width: 200px;"
+        >
+          <div id="userCounterText" style="padding-top: 40px;">
+            <div id="usercount" class="display-4"><%= userCount %></div>
+            <div id="userCountText">Users</div>
+          </div>
+        </div>
+        <div
+          id="log-counter"
+          class="border m-2 text-center flex-fill"
+          style="height: 200px; min-width: 200px;"
+        >
+          <div id="logCounterText" style="padding-top: 40px;">
+            <div id="logcount" class="display-4"><%= logCount %></div>
+            <div id="logCountText">Logs/Days Completed</div>
+          </div>
+        </div>
+      </div>
       <br />
       <div id="statsdiv" class=""></div>
     </div>

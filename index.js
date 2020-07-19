@@ -97,10 +97,14 @@ app.get("/new/:day", loggedIn, (req, res) => {
   });
 });
 
-app.get("/stats", (req, res) => {
+app.get("/stats", async (req, res) => {
   let loggedInUser = req.user || false;
+  let userCount = await User.estimatedDocumentCount();
+  let logCount = await DailyLog.estimatedDocumentCount();
   res.render("stats", {
     loggedInUser: loggedInUser,
+    userCount: userCount,
+    logCount: logCount,
   });
 });
 
