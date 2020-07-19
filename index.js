@@ -117,27 +117,21 @@ app.post(
       return res.status(422).json({ errors: errors.array() });
     }
     let exists = DailyLog.exists({ user: req.user.login, day: req.query.day });
+    let newLog = new DailyLog({
+      user: req.user.login,
+      day: req.query.day,
+      text: req.body.logtext,
+      proof: req.body.proof,
+    });
+    newLog.save((err) => {
+      if (err) {
+        console.error(err);
+        res.status(500).send("Error creating new log");
+      }
 
-    if (!exists) {
-      let newLog = new DailyLog({
-        user: req.user.login,
-        day: req.query.day,
-        text: req.body.logtext,
-        proof: req.body.proof,
-      });
-      newLog.save((err) => {
-        if (err) {
-          console.error(err);
-          res.status(500).send("Error creating new log");
-        }
-
-        console.log("New log");
-        res.redirect("/your-page?success=true");
-      });
-    } else {
-      console.log("say already exists");
-      res.status(422).send("Day already exists");
-    }
+      console.log("New log");
+      res.redirect("/your-page?success=true");
+    });
   }
 );
 
