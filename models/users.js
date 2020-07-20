@@ -1,16 +1,5 @@
 const mongoose = require("mongoose");
 
-const settingSchema = new mongoose.Schema({
-  moderators: {
-    type: Array,
-    default: [],
-  },
-  allow_single_votes: {
-    type: Boolean,
-    default: false,
-  },
-});
-
 const userSchema = new mongoose.Schema({
   twitch_id: {
     type: Number,
@@ -30,9 +19,6 @@ const userSchema = new mongoose.Schema({
   provider: {
     type: String,
   },
-  twitch: {
-    type: JSON,
-  },
   is_admin: {
     type: Boolean,
     default: false,
@@ -41,7 +27,5 @@ const userSchema = new mongoose.Schema({
     type: String,
   },
 });
-
-// userSchema.index({ expireAt: 1 }, { expireAfterSeconds: 0 });
 
 module.exports = mongoose.model("Users", userSchema);

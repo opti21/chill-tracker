@@ -256,7 +256,7 @@ passport.use(
       callbackURL: `${process.env.APP_URL}/auth/twitch/callback`,
       scope: "",
     },
-    async function (profile, done) {
+    async function (accessToken, refreshToken, profile, done) {
       try {
         User.findOne({ twitch_id: profile.id })
           .exec()
