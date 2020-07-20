@@ -15,7 +15,14 @@
       <% dailyLogs.forEach(log => { %>
       <div id="<%= log.user %>day<%= log.day %>" class="card mb-3 w-100">
         <div class="card-header">
-          <a href="/user/<%= log.user %>"><%= log.user %></a>
+          <span
+            ><a href="/user/<%= log.user %>"
+              ><img
+                id="<%= log.user %>pic"
+                src="/api/user-pic/<%= log.user %>"
+                alt=""
+                style="height: 30px; width: 30px;" /></a></span
+          ><a class="ml-2" href="/user/<%= log.user %>"><%= log.user %></a>
         </div>
         <div class="card-body">
           <h5 class="card-title">

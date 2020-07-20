@@ -228,8 +228,16 @@ app.get("/api/stats", async (req, res) => {
 
 app.get("/api/user-tasks", async (req, res) => {
   let tasks = await User.find({}, "username task -_id");
-  console.log(tasks);
   res.send(tasks);
+});
+
+app.get("/api/user-pic/:user", async (req, res) => {
+  let picObject = await User.findOne(
+    { username: req.params.user },
+    "profile_pic_url -_id"
+  );
+  let userPic = picObject.profile_pic_url;
+  res.redirect(userPic);
 });
 
 app.get("/logout", async function (req, res) {
