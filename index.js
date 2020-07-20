@@ -176,9 +176,11 @@ app.post(
 app.get("/user/:user/", async (req, res) => {
   let loggedInUser = req.user || false;
   let publicUser = req.params.user;
+  let userTask = await User.findOne({ username: publicUser }, "task -_id");
   res.render("publicUser", {
     loggedInUser: loggedInUser,
     publicUser: publicUser,
+    userTask: userTask,
   });
 });
 
@@ -226,6 +228,7 @@ app.get("/api/stats", async (req, res) => {
 
 app.get("/api/user-tasks", async (req, res) => {
   let tasks = await User.find({}, "username task -_id");
+  console.log(tasks);
   res.send(tasks);
 });
 
