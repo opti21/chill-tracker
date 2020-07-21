@@ -89,11 +89,9 @@ app.get(
 );
 
 app.get("/feed", async (req, res) => {
-  let dailyLogs = await DailyLog.find().limit(10);
   let user = req.user || false;
   res.render("feed", {
     loggedInUser: user,
-    dailyLogs: dailyLogs,
   });
 });
 
@@ -169,7 +167,7 @@ app.post(
         );
         console.log(discordChannel);
         if (!discordChannel) {
-          res.redirect("/your-page?success=true");
+          return res.redirect("/your-page?success=true");
         } else {
           let logEmbed;
           let exclamations = ["Great job", "Way to go", "Sweet as"];
@@ -238,6 +236,17 @@ app.post(
     });
   }
 );
+
+app.get("/api/feed", async (req, res) => {
+  let logs = await DailyLog.find()
+    .sort({ createdAt: -1 })
+    .limit(10)
+    .skip(10 * Number(req.query.page || 0));
+
+  res.json({
+    logs,
+  });
+});
 
 app.post(
   "/api/add-task/:user",
