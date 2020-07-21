@@ -208,6 +208,7 @@ app.post(
           } else {
             // if URL doesn't have image tag
             logEmbed = {
+              content: `${req.user.login} added their day ${req.query.day} log. ${exclamation} ${req.user.login}!`,
               embed: {
                 title: `Day ${req.query.day} of ${user.task}`,
                 description: `**Log:**\n${req.body.logtext}`,
