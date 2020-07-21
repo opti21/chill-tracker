@@ -165,69 +165,72 @@ app.post(
       }
       try {
         let discordChannel = discordClient.channels.cache.find(
-          (ch) => ch.name === "30-day-challange"
+          (ch) => ch.name === "30-day-challenge"
         );
-
-        let logEmbed;
-        let exclamations = ["Great job", "Way to go", "Sweet as"];
-        let exclamation =
-          exclamations[Math.floor(Math.random() * exclamations.length)];
-
-        if (
-          req.body.proof.includes("jpg") ||
-          req.body.proof.includes("jpeg") ||
-          req.body.proof.includes("png") ||
-          req.body.proof.includes("gif")
-        ) {
-          // if URL does have image tag
-          logEmbed = {
-            content: `${req.user.login} added their day ${req.query.day} log. ${exclamation} ${req.user.login}!`,
-            embed: {
-              title: `Day ${req.query.day} of ${user.task}`,
-              description: `**Log:**\n${req.body.logtext}`,
-              url: `${process.env.APP_URL}/log/${req.user.login}/${req.query.day}`,
-              color: 1168657,
-              author: {
-                name: req.user.login,
-                icon_url: user.profile_pic_url,
-              },
-              fields: [
-                {
-                  name: "Proof:",
-                  value: `${req.body.proof}\n`,
-                },
-              ],
-              image: {
-                url: req.body.proof,
-              },
-            },
-          };
+        console.log(discordChannel);
+        if (!discordChannel) {
+          res.redirect("/your-page?success=true");
         } else {
-          // if URL doesn't have image tag
-          logEmbed = {
-            embed: {
-              title: `Day ${req.query.day} of ${user.task}`,
-              description: `**Log:**\n${req.body.logtext}`,
-              url: `${process.env.APP_URL}/log/${req.user.login}/${req.query.day}`,
-              color: 1168657,
-              author: {
-                name: req.user.login,
-                icon_url: user.profile_pic_url,
-              },
-              fields: [
-                {
-                  name: "Proof:",
-                  value: `${req.body.proof}\n`,
-                },
-              ],
-            },
-          };
-        }
+          let logEmbed;
+          let exclamations = ["Great job", "Way to go", "Sweet as"];
+          let exclamation =
+            exclamations[Math.floor(Math.random() * exclamations.length)];
 
-        discordChannel.send(logEmbed);
+          if (
+            req.body.proof.includes("jpg") ||
+            req.body.proof.includes("jpeg") ||
+            req.body.proof.includes("png") ||
+            req.body.proof.includes("gif")
+          ) {
+            // if URL does have image tag
+            logEmbed = {
+              content: `${req.user.login} added their day ${req.query.day} log. ${exclamation} ${req.user.login}!`,
+              embed: {
+                title: `Day ${req.query.day} of ${user.task}`,
+                description: `**Log:**\n${req.body.logtext}`,
+                url: `${process.env.APP_URL}/log/${req.user.login}/${req.query.day}`,
+                color: 1168657,
+                author: {
+                  name: req.user.login,
+                  icon_url: user.profile_pic_url,
+                },
+                fields: [
+                  {
+                    name: "Proof:",
+                    value: `${req.body.proof}\n`,
+                  },
+                ],
+                image: {
+                  url: req.body.proof,
+                },
+              },
+            };
+          } else {
+            // if URL doesn't have image tag
+            logEmbed = {
+              embed: {
+                title: `Day ${req.query.day} of ${user.task}`,
+                description: `**Log:**\n${req.body.logtext}`,
+                url: `${process.env.APP_URL}/log/${req.user.login}/${req.query.day}`,
+                color: 1168657,
+                author: {
+                  name: req.user.login,
+                  icon_url: user.profile_pic_url,
+                },
+                fields: [
+                  {
+                    name: "Proof:",
+                    value: `${req.body.proof}\n`,
+                  },
+                ],
+              },
+            };
+          }
+
+          discordChannel.send(logEmbed);
+        }
       } catch (err) {
         console.error(err);
-        res.status(500).send(err);
       }
 
       console.log("New log");
