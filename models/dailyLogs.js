@@ -16,6 +16,9 @@ const dailyLogSchema = new mongoose.Schema({
   proof: {
     type: String,
   },
+  image: {
+    type: String,
+  },
   createdAt: {
     type: Date,
     default: Date(),

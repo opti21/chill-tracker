@@ -9,6 +9,22 @@ const cookieSession = require("cookie-session");
 const mongoose = require("mongoose");
 const { body, validationResult } = require("express-validator");
 
+// Discord bot
+const Discord = require("discord.js");
+const discordClient = new Discord.Client();
+
+discordClient.on("ready", () => {
+  console.log(`Logged in as ${discordClient.user.tag}!`);
+});
+
+discordClient.on("message", (msg) => {
+  if (msg.content === "ping") {
+    msg.reply("pong");
+  }
+});
+
+discordClient.login(process.env.DISCORD_TOKEN);
+
 // Models
 const User = require("./models/users");
 const DailyLog = require("./models/dailyLogs");
@@ -90,7 +106,7 @@ app.get("/your-page", loggedIn, async (req, res) => {
   } else {
     hasTask = true;
   }
-  console.log(dailyLogs);
+  // console.log(dailyLogs);
   res.render("your-page", {
     loggedInUser: req.user.login,
     logs: dailyLogs,
@@ -124,22 +140,94 @@ app.post(
     body("logtext").isString().not().isEmpty().trim(),
     body("proof").isString().trim(),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(422).json({ errors: errors.array() });
     }
     let exists = DailyLog.exists({ user: req.user.login, day: req.query.day });
+    let user = await User.findOne(
+      { username: req.user.login },
+      "task profile_pic_url -_id"
+    );
+
     let newLog = new DailyLog({
       user: req.user.login,
       day: req.query.day,
       text: req.body.logtext,
       proof: req.body.proof,
     });
+
     newLog.save((err) => {
       if (err) {
         console.error(err);
         res.status(500).send("Error creating new log");
+      }
+      try {
+        let discordChannel = discordClient.channels.cache.find(
+          (ch) => ch.name === "30-day-challange"
+        );
+
+        let logEmbed;
+        let exclamations = ["Great job", "Way to go", "Sweet as"];
+        let exclamation =
+          exclamations[Math.floor(Math.random() * exclamations.length)];
+
+        if (
+          req.body.proof.includes("jpg") ||
+          req.body.proof.includes("jpeg") ||
+          req.body.proof.includes("png") ||
+          req.body.proof.includes("gif")
+        ) {
+          // if URL does have image tag
+          logEmbed = {
+            content: `${req.user.login} added their day ${req.query.day} log. ${exclamation} ${req.user.login}!`,
+            embed: {
+              title: `Day ${req.query.day} of ${user.task}`,
+              description: `**Log:**\n${req.body.logtext}`,
+              url: `${process.env.APP_URL}/log/${req.user.login}/${req.query.day}`,
+              color: 1168657,
+              author: {
+                name: req.user.login,
+                icon_url: user.profile_pic_url,
+              },
+              fields: [
+                {
+                  name: "Proof:",
+                  value: `${req.body.proof}\n`,
+                },
+              ],
+              image: {
+                url: req.body.proof,
+              },
+            },
+          };
+        } else {
+          // if URL doesn't have image tag
+          logEmbed = {
+            embed: {
+              title: `Day ${req.query.day} of ${user.task}`,
+              description: `**Log:**\n${req.body.logtext}`,
+              url: `${process.env.APP_URL}/log/${req.user.login}/${req.query.day}`,
+              color: 1168657,
+              author: {
+                name: req.user.login,
+                icon_url: user.profile_pic_url,
+              },
+              fields: [
+                {
+                  name: "Proof:",
+                  value: `${req.body.proof}\n`,
+                },
+              ],
+            },
+          };
+        }
+
+        discordChannel.send(logEmbed);
+      } catch (err) {
+        console.error(err);
+        res.status(500).send(err);
       }
 
       console.log("New log");
@@ -157,6 +245,7 @@ app.post(
     if (!errors.isEmpty()) {
       return res.status(422).json({ errors: errors.array() });
     }
+
     User.findOneAndUpdate(
       { username: req.params.user },
       { task: req.body.task },

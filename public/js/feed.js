@@ -8,3 +8,12 @@ fetch(`/api/user-tasks/`)
       taskDiv.innerHTML = ` ${task.task}`;
     });
   });
+
+// Hide img tags if not linked to an image
+document.addEventListener("DOMContentLoaded", function (event) {
+  document.querySelectorAll("img").forEach(function (img) {
+    img.onerror = function () {
+      this.style.display = "none";
+    };
+  });
+});
