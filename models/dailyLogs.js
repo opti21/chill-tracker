@@ -19,10 +19,8 @@ const dailyLogSchema = new mongoose.Schema({
   image: {
     type: String,
   },
-  createdAt: {
-    type: Date,
-    default: Date(),
-  },
+}, {
+  timestamps: true,
 });
 
 module.exports = mongoose.model("dailyLogs", dailyLogSchema);
