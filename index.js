@@ -244,7 +244,13 @@ app.get("/api/feed", async (req, res) => {
     .skip(10 * Number(req.query.page || 0));
 
   res.json({
-    logs,
+    logs: await Promise.all(logs.map(async log => {
+      const user = await User.findOne({ username: log.user });
+      return {
+        ...log.toObject(),
+        task: user && user.task,
+      };
+    })),
   });
 });
 
