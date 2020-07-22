@@ -8,6 +8,7 @@ const bodyParser = require("body-parser");
 const cookieSession = require("cookie-session");
 const mongoose = require("mongoose");
 const { body, validationResult } = require("express-validator");
+const helmet = require("helmet");
 
 // Discord bot
 const Discord = require("discord.js");
@@ -29,6 +30,7 @@ discordClient.login(process.env.DISCORD_TOKEN);
 const User = require("./models/users");
 const DailyLog = require("./models/dailyLogs");
 
+app.use(helmet());
 app.set("trust proxy", 1);
 app.set("views", "./views");
 app.set("view engine", "ejs");
@@ -245,13 +247,15 @@ app.get("/api/feed", async (req, res) => {
     .skip(10 * Number(req.query.page || 0));
 
   res.json({
-    logs: await Promise.all(logs.map(async log => {
-      const user = await User.findOne({ username: log.user });
-      return {
-        ...log.toObject(),
-        task: user && user.task,
-      };
-    })),
+    logs: await Promise.all(
+      logs.map(async (log) => {
+        const user = await User.findOne({ username: log.user });
+        return {
+          ...log.toObject(),
+          task: user && user.task,
+        };
+      })
+    ),
   });
 });
 
