@@ -23,48 +23,72 @@ const loadFeed = (page = 0) => {
       }
 
       logs.forEach(log => {
-        feed.innerHTML += `
-          <div id="${log.user}day${log.day}" class="card mb-3 w-100">
-            <div class="row no-gutters">
-              <div class="col-md-4">
-                <a data-fancybox="gallery" href="${log.proof}"
-                  ><img
-                    src="https://external-content.duckduckgo.com/iu/?u=${log.proof}"
-                    class="card-img"
-                    style="display: block; max-width: 100%; height: auto;"
-                /></a>
-              </div>
-              <div class="col-md-8">
-                <div class="card-body">
-                  <h5 class="card-title">
-                    Day ${log.day} of <span id="${log.user}task"></span>
-                  </h5>
-                  <span
-                    ><a href="/user/${log.user}"
-                      ><img
-                        id="${log.user}pic"
-                        src="/api/user-pic/${log.user}"
-                        alt=""
-                        style="height: 30px; width: 30px;"
-                        class="rounded-circle" /></a></span
-                  ><a class="ml-2" href="/user/${log.user}">${log.user}</a>
-                  <p class="card-text mt-2">
-                    ${log.text}
-                  </p>
-                  <p class="card-text">
-                    Proof:
-                    <a
-                      href="${log.proof}"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      >${log.proof}</a
-                    >
-                  </p>
-                </div>
+        const container = document.createElement('div');
+        container.classList.add('card', 'mb-3', 'w-100');
+        container.id = `${log.user}day${log.day}`;
+        container.innerHTML = `
+          <div class="row no-gutters">
+            <div class="col-md-4">
+              <a data-fancybox="gallery" class="gallery">
+                <img
+                  class="card-img"
+                  style="display: block; max-width: 100%; height: auto;"
+                />
+              </a>
+            </div>
+            <div class="col-md-8">
+              <div class="card-body">
+                <h5 class="card-title">
+                  Day <span class="day"></span> of <span class="task"></span>
+                </h5>
+                <span>
+                  <a class="user-img">
+                    <img
+                      alt=""
+                      style="height: 30px; width: 30px;"
+                      class="rounded-circle"
+                    />
+                  </a>
+                </span>
+                <a class="ml-2 user"></a>
+                <p class="card-text mt-2 text"></p>
+                <p class="card-text">
+                  Proof:
+                  <a
+                    class="proof"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  ></a>
+                </p>
               </div>
             </div>
           </div>
         `;
+
+        const gallery = container.querySelector('.gallery')
+        const galleryImage = gallery.querySelector('img');
+        const day = container.querySelector('.day');
+        const task = container.querySelector('.task');
+        const userImg = container.querySelector('.user-img');
+        const userImage = userImg.querySelector('img');
+        const user = container.querySelector('.user');
+        const text = container.querySelector('.text');
+        const proof = container.querySelector('.proof');
+
+        gallery.href = log.proof;
+        galleryImage.src = `https://external-content.duckduckgo.com/iu/?u=${log.proof}`;
+        day.textContent = log.day;
+        task.id = `${log.user}task`;
+        task.textContent = log.task;
+        userImg.href = `/user/${log.user}`;
+        userImg.id = `${log.user}pic`;
+        userImage.src = `/api/user-pic/${log.user}`;
+        user.href = `/user/${log.user}`;
+        user.textContent = log.user;
+        text.textContent = log.text;
+        proof.href = proof.textContent = log.proof;
+
+        feed.appendChild(container);
       });
     });
 };
