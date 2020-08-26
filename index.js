@@ -157,7 +157,7 @@ app.post(
       proof: req.body.proof
     });
 
-    newLog.save(err => {
+    newLog.save((err, log) => {
       if (err) {
         console.error(err);
         res.status(500).send("Error creating new log");
@@ -177,11 +177,10 @@ app.post(
 
           let title
           
-          console.log(req.body.title)
-          if (req.body.title === undefined) {
+          if (req.body.logtitle === undefined) {
             title = "No Title"
           } else {
-            title = req.body.title
+            title = req.body.logtitle
           }
 
 
@@ -197,7 +196,7 @@ app.post(
               embed: {
                 title: `${title}`,
                 description: `**Log:**\n${req.body.logtext}`,
-                url: `${process.env.APP_URL}/log/${req.user.login}/${req.query.day}`,
+                url: `${process.env.APP_URL}/log/${log._id}`,
                 color: 1168657,
                 author: {
                   name: req.user.login,
@@ -221,7 +220,7 @@ app.post(
               embed: {
                 title: `${title}`,
                 description: `**Log:**\n${req.body.logtext}`,
-                url: `${process.env.APP_URL}/log/${req.user.login}/${req.query.day}`,
+                url: `${process.env.APP_URL}/log/${log._id}`,
                 color: 1168657,
                 author: {
                   name: req.user.login,
@@ -238,7 +237,6 @@ app.post(
         console.error(err);
       }
 
-      console.log("New log");
       res.redirect("/your-page?success=true");
     });
   }
