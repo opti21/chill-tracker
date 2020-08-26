@@ -18,7 +18,7 @@ discordClient.on("ready", () => {
   console.log(`Logged in as ${discordClient.user.tag}!`);
 });
 
-discordClient.on("message", (msg) => {
+discordClient.on("message", msg => {
   if (msg.content === "ping") {
     msg.reply("pong");
   }
@@ -42,7 +42,7 @@ app.use(
     name: "session",
     secret: `${process.env.SESSION_SECRET}`,
     saveUninitialized: false,
-    resave: false,
+    resave: false
   })
 );
 app.use(passport.initialize());
@@ -54,7 +54,7 @@ mongoose
     {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      useCreateIndex: true,
+      useCreateIndex: true
     }
   )
   .catch(function (err) {
@@ -76,7 +76,7 @@ app.get("/", async (req, res) => {
   let dailyLogs = await DailyLog.find().limit(10).sort({ createdAt: -1 });
   res.render("feed", {
     loggedInUser: loggedInUser,
-    dailyLogs: dailyLogs,
+    dailyLogs: dailyLogs
   });
 });
 
@@ -93,7 +93,7 @@ app.get(
 app.get("/feed", async (req, res) => {
   let user = req.user || false;
   res.render("feed", {
-    loggedInUser: user,
+    loggedInUser: user
   });
 });
 
@@ -111,14 +111,13 @@ app.get("/your-page", loggedIn, async (req, res) => {
     loggedInUser: req.user.login,
     logs: dailyLogs,
     hasTask: hasTask,
-    task: user.task,
+    task: user.task
   });
 });
 
-app.get("/new/:day", loggedIn, (req, res) => {
+app.get("/new/", loggedIn, (req, res) => {
   res.render("new", {
-    loggedInUser: req.user.login,
-    day: req.params.day,
+    loggedInUser: req.user.login
   });
 });
 
@@ -129,7 +128,7 @@ app.get("/stats", async (req, res) => {
   res.render("stats", {
     loggedInUser: loggedInUser,
     userCount: userCount,
-    logCount: logCount,
+    logCount: logCount
   });
 });
 
@@ -138,7 +137,7 @@ app.post(
   loggedIn,
   [
     body("logtext").isString().not().isEmpty().trim(),
-    body("proof").isString().trim(),
+    body("proof").isString().trim()
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -153,21 +152,21 @@ app.post(
 
     let newLog = new DailyLog({
       user: req.user.login,
-      day: req.query.day,
+      title: req.body.logtitle,
       text: req.body.logtext,
-      proof: req.body.proof,
+      proof: req.body.proof
     });
 
-    newLog.save((err) => {
+    newLog.save(err => {
       if (err) {
         console.error(err);
         res.status(500).send("Error creating new log");
       }
       try {
         let discordChannel = discordClient.channels.cache.find(
-          (ch) => ch.name === "30-day-challenge"
+          ch => ch.name === "30-day-challenge📅"
         );
-        console.log(discordChannel);
+        //console.log(discordChannel);
         if (!discordChannel) {
           return res.redirect("/your-page?success=true");
         } else {
@@ -175,6 +174,16 @@ app.post(
           let exclamations = ["Great job", "Way to go", "Sweet as"];
           let exclamation =
             exclamations[Math.floor(Math.random() * exclamations.length)];
+
+          let title
+          
+          console.log(req.body.title)
+          if (req.body.title === undefined) {
+            title = "No Title"
+          } else {
+            title = req.body.title
+          }
+
 
           if (
             req.body.proof.includes("jpg") ||
@@ -184,50 +193,45 @@ app.post(
           ) {
             // if URL does have image tag
             logEmbed = {
-              content: `${req.user.login} added their day ${req.query.day} log. ${exclamation} ${req.user.login}!`,
+              content: `${req.user.login} added a new log. ${exclamation} ${req.user.login}!`,
               embed: {
-                title: `Day ${req.query.day} of ${user.task}`,
+                title: `${title}`,
                 description: `**Log:**\n${req.body.logtext}`,
                 url: `${process.env.APP_URL}/log/${req.user.login}/${req.query.day}`,
                 color: 1168657,
                 author: {
                   name: req.user.login,
-                  icon_url: user.profile_pic_url,
+                  icon_url: user.profile_pic_url
                 },
                 fields: [
                   {
                     name: "Proof:",
-                    value: `${req.body.proof}\n`,
-                  },
+                    value: `${req.body.proof}\n`
+                  }
                 ],
                 image: {
-                  url: req.body.proof,
-                },
-              },
+                  url: req.body.proof
+                }
+              }
             };
           } else {
             // if URL doesn't have image tag
             logEmbed = {
-              content: `${req.user.login} added their day ${req.query.day} log. ${exclamation} ${req.user.login}!`,
+              content: `${req.user.login} added a new log. ${exclamation} ${req.user.login}!`,
               embed: {
-                title: `Day ${req.query.day} of ${user.task}`,
+                title: `${title}`,
                 description: `**Log:**\n${req.body.logtext}`,
                 url: `${process.env.APP_URL}/log/${req.user.login}/${req.query.day}`,
                 color: 1168657,
                 author: {
                   name: req.user.login,
-                  icon_url: user.profile_pic_url,
+                  icon_url: user.profile_pic_url
                 },
-                fields: [
-                  {
-                    name: "Proof:",
-                    value: `${req.body.proof}\n`,
-                  },
-                ],
-              },
+              }
             };
           }
-
+          
+          console.log(logEmbed)
           discordChannel.send(logEmbed);
         }
       } catch (err) {
@@ -248,17 +252,18 @@ app.get("/api/feed", async (req, res) => {
 
   res.json({
     logs: await Promise.all(
-      logs.map(async (log) => {
+      logs.map(async log => {
         const user = await User.findOne({ username: log.user });
         return {
           ...log.toObject(),
-          task: user && user.task,
+          task: user && user.task
         };
       })
-    ),
+    )
   });
 });
 
+// Create new task
 app.post(
   "/api/add-task/:user",
   loggedIn,
@@ -274,10 +279,10 @@ app.post(
       { task: req.body.task },
       { new: true, useFindAndModify: false }
     )
-      .then((doc) => {
+      .then(doc => {
         res.redirect("/your-page");
       })
-      .catch((err) => {
+      .catch(err => {
         console.error(err);
         res.status(500).send("Error adding Task");
       });
@@ -292,30 +297,35 @@ app.get("/user/:user/", async (req, res) => {
   res.render("publicUser", {
     loggedInUser: loggedInUser,
     publicUser: publicUser,
-    userTask: userTask,
+    userTask: userTask
   });
 });
 
 // Specific Day
-app.get("/log/:user/:day", loggedIn, async (req, res) => {
-  let dailyLog = await DailyLog.findOne({
-    user: req.params.user,
-    day: req.params.day,
-  });
-  let isLogOwner;
-  if (req.user.login === req.params.user) {
-    logOwner = true;
-  } else {
-    logOwner = false;
+app.get("/log/:id", loggedIn, async (req, res) => {
+  try {
+    let dailyLog = await DailyLog.findById(req.params.id);
+    let isLogOwner;
+    if (req.user.login === req.params.user) {
+      logOwner = true;
+    } else {
+      logOwner = false;
+    }
+
+    console.log(dailyLog);
+
+    res.render("log", {
+      loggedInUser: req.user.login,
+      loggedInUserPic: req.user.profile_pic_url,
+      logText: dailyLog.text,
+      logProof: decodeURIComponent(dailyLog.proof),
+      logDate: dailyLog.createdAt,
+      isLogOwner: isLogOwner,
+      logOwner: dailyLog.user
+    });
+  } catch (e) {
+    console.error(e);
   }
-  dailyLog.proof = decodeURIComponent(dailyLog.proof);
-  res.render("log", {
-    loggedInUser: req.user.login,
-    loggedInUserPic: req.user.profile_pic_url,
-    dailyLog: dailyLog,
-    isLogOwner: isLogOwner,
-    logOwner: req.params.user,
-  });
 });
 
 app.get("/api/logs", loggedIn, async (req, res) => {
@@ -330,10 +340,10 @@ app.get("/api/logs/:user", async (req, res) => {
 
 app.get("/api/stats", async (req, res) => {
   let users = await User.find({}, "username profile_pic_url -_id");
-  let logs = await DailyLog.find({}, "-_id");
+  let logs = await DailyLog.find({});
   let stats = {
     users: users,
-    logs: logs,
+    logs: logs
   };
   res.status(200).send(stats);
 });
@@ -358,7 +368,7 @@ app.get("/logout", async function (req, res) {
     req.user = null;
     req.logout();
     res.render("bye", {
-      loggedInUser: false,
+      loggedInUser: false
     });
   } catch (err) {
     console.error(err);
@@ -367,7 +377,7 @@ app.get("/logout", async function (req, res) {
 
 app.get("/login", async function (req, res) {
   res.render("login", {
-    loggedInUser: false,
+    loggedInUser: false
   });
 });
 
@@ -377,7 +387,7 @@ passport.use(
       clientID: process.env.TWITCH_CLIENTID,
       clientSecret: process.env.TWITCH_SECRET,
       callbackURL: `${process.env.APP_URL}/auth/twitch/callback`,
-      scope: "",
+      scope: ""
     },
     async function (accessToken, refreshToken, profile, done) {
       try {
@@ -390,7 +400,7 @@ passport.use(
                 username: profile.login,
                 display_name: profile.display_name,
                 profile_pic_url: profile.profile_image_url,
-                provider: "twitch",
+                provider: "twitch"
               });
               console.log("New user created");
 
@@ -401,7 +411,7 @@ passport.use(
               return done(null, profile);
             }
           })
-          .catch((err) => {
+          .catch(err => {
             console.error(err);
           });
       } catch (err) {

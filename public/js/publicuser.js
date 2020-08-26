@@ -1,38 +1,28 @@
 let globalUser = document.getElementById("pageInfo").getAttribute("data-user");
 
 fetch(`/api/logs/${globalUser}`)
-  .then((res) => res.json())
-  .then((dailyLogs) => {
+  .then(res => res.json())
+  .then(dailyLogs => {
     console.log(dailyLogs);
-    for (let i = 1; i < 31; i++) {
-      let logsDiv = document.getElementById("logsdiv");
-      let foundDay = dailyLogs.find((dailyLog) => dailyLog.day === i);
-      let newLog = document.createElement("div");
-      if (foundDay && foundDay.day === i) {
-        newLog.setAttribute(
-          "class",
-          "m-1 p-1 bg-success text-white text-center"
-        );
-        newLog.setAttribute("style", "height: 100px; width: 100px;");
-        newLog.innerHTML = `
-              <div><h3>Day ${i}</h3></div>
-                  <div>
-                      <a href="/log/${foundDay.user}/${i}" class="text-white" style="font-size: 30px;"
-                      ><i class="far fa-eye"></i></a>
-              </div>
-              `;
-        logsDiv.append(newLog);
-      } else {
-        newLog.setAttribute(
-          "class",
-          "m-1 p-1 bg-danger text-white text-center"
-        );
-        newLog.setAttribute("style", "height: 100px; width: 100px;");
-        newLog.innerHTML = `
-            <div><h3>Day ${i}</h3></div>
-            </div>
-            `;
-        logsDiv.append(newLog);
-      }
-    }
+
+    const logsTable = document.getElementById("logbody");
+
+    dailyLogs.forEach(log => {
+      let newLog = document.createElement("tr");
+      newLog.innerHTML = `
+        <td><a href="/log/${log._id}"> ${moment(log.createdAt).format(
+        "L"
+      )}</a></td>
+        <td><a href="/log/${log._id}">${log.title}</a></td>
+        <td>${log.text}</td>
+      `;
+      logsTable.append(newLog);
+    });
+
+    $(document).ready(function () {
+      $("#logtable").DataTable({
+        order: [[0, "desc"]]
+      });
+    });
+
   });

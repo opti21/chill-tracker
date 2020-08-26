@@ -9,7 +9,7 @@
   <body>
     <%- include('./partials/navbar') %>
     <div class="container">
-      <h1><%= logOwner %>'s Day <%= dailyLog.day %> Log</h1>
+      <h1><%= logOwner %>'s <span id="logdate"><%= logDate %></span> Log</h1>
       <% if(isLogOwner) {%>
       <!-- <a href="/editlog/<%= dailyLog.day %>" class="btn btn-primary"
         >Edit <%= dailyLog.day %></a
@@ -19,16 +19,19 @@
       <div class="card mb-3 w-100">
         <div class="card-body">
           <p class="card-text">
-            <%= dailyLog.text %>
+            <%= logText %>
           </p>
           <p class="card-text">
             Proof:
-            <a href="<%= decodeURIComponent(dailyLog.proof) %>"
-              ><%= decodeURIComponent(dailyLog.proof) %></a
+            <a href="<%= logProof %>"
+              ><%= logProof %></a
             >
           </p>
         </div>
       </div>
     </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js" integrity="sha512-rmZcZsyhe0/MAjquhTgiUcb4d9knaFc7b5xAfju483gbEXTkeJRUMIPk6s3ySZMYUHEcjKbjLjyddGWMrNEvZg==" crossorigin="anonymous"></script></script>
+    <script src="/js/publicLog.js"></script>
   </body>
 </html>
