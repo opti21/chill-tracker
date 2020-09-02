@@ -12,12 +12,24 @@ fetch(`/api/stats/`)
       statsDiv.append(newUserDiv);
     });
 
-    stats.logs.forEach(log => {
-      let userDiv = document.getElementById(`${log.user}`);
-      let logSquare = document.createElement("div");
-      logSquare.setAttribute("id", `${log.user}log${log._id}`);
-      logSquare.setAttribute("style", "height: 20px; width: 20px;");
-      logSquare.setAttribute("class", "bg-success m-1");
-      userDiv.append(logSquare);
+    stats.tasks.forEach(task => {
+      let userDiv = document.getElementById(`${task.user}`);
+      task.days.forEach(day => {
+        if (day.completed) {
+          let logSquare = document.createElement("a");
+          logSquare.setAttribute("href", `/log/${task.user}/${day.day}`)
+          logSquare.setAttribute("id", `${task.user}day${day.day}`);
+          logSquare.setAttribute("style", "height: 20px; width: 20px;");
+          logSquare.setAttribute("class", "bg-success m-1");
+          userDiv.append(logSquare);
+        } else {
+          let logSquare = document.createElement("div");
+          logSquare.setAttribute("id", `${task.user}day${day.day}`);
+          logSquare.setAttribute("style", "height: 20px; width: 20px;");
+          logSquare.setAttribute("class", "bg-danger m-1");
+          userDiv.append(logSquare);
+        }
+
+      })
     });
   });

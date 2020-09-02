@@ -1,71 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>New Daily Log</title>
-    <%- include('./partials/head') %>
-  </head>
-  <body>
-    <%- include('./partials/navbar') %>
-    <div class="container">
-      <h1>New Daily Log</h1>
-      <br />
-      <p>
-        You can only submit once, so if you did multiple things in a day submit
-        them all. You can put links to proof in the log text if you'd like
-      </p>
-      <form action="/newlog" method="POST" style="width: 400px;">
-        <div class="form-group">
-          <label for ="logtitleinput">Log Title</label>
-          <input class="form-control"
-          id="logtitleinput"
-          name="logtitle"
-          pattern="(.|\s)*\S(.|\s)*"
-          >
-        </div>
-        <div class="form-group">
-          <label for="logTextarea">Log text</label>
-          <textarea
-            class="form-control"
-            id="logTextarea"
-            rows="3"
-            name="logtext"
-            required
-            pattern="(.|\s)*\S(.|\s)*"
-          ></textarea>
-        </div>
-        <div class="form-group">
-          <label for="proofInput">Proof</label>
-          <input
-            class="form-control"
-            type="url"
-            id="proofInput"
-            placeholder="Do you have any proof?"
-            name="proof"
-            pattern="(.|\s)*\S(.|\s)*"
-          />
-          <small id="proofHelpBlock" class="form-text text-muted">
-            Must be a URL to a picture
-          </small>
-          <small id="proofHelpBlock" class="form-text text-muted">
-            If your proof is a picture you can upload it to imgur
-            <a href="https://imgur.com/upload" target="blank"
-              >by clicking here.</a
-            >
-            and submiting the link to the image.
-          </small>
-          <small
-            >**Make sure the link ends in jpg/png/gif if you want it to show
-            up**</small
-          >
-          <small
-            >Usually if you right click on an image you can click on "Copy Image
-            Address" the paste it in for proof</small
-          >
-        </div>
-        <button type="submit" class="btn btn-primary my-1">Submit</button>
-      </form>
-    </div>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>New Daily Log</title>
+  <%- include('./partials/head') %>
+</head>
+
+<body>
+  <%- include('./partials/navbar') %>
+  <div class="container">
+    <h1>New Day <%= logDay %> Log</h1>
+    <br />
+    <p>
+      You can only submit once, so be cautious of what you put in. You can put links to proof in the log text if you'd
+      like.
+    </p>
+    <form action="/api/newlog/<%= logDay %>" method="POST" style="width: 400px;">
+      <div class="form-group">
+        <label for="logtitleinput">Log Title</label>
+        <input class="form-control" id="logtitleinput" name="logtitle" pattern="(.|\s)*\S(.|\s)*">
+      </div>
+      <div class="form-group">
+        <label for="logTextarea">Log text</label>
+        <textarea class="form-control" id="logTextarea" rows="3" name="logtext" required
+          pattern="(.|\s)*\S(.|\s)*"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="proofInput">Proof</label>
+        <input class="form-control" type="url" id="proofInput" placeholder="Do you have any proof?" name="proof"
+          pattern="(.|\s)*\S(.|\s)*" />
+        <small id="proofHelpBlock" class="form-text text-muted">
+          Must be a URL to a picture
+        </small>
+        <small id="proofHelpBlock" class="form-text text-muted">
+          If your proof is a picture you can upload it to imgur
+          <a href="https://imgur.com/upload" target="blank">by clicking here.</a>
+          and submiting the link to the image.
+        </small>
+        <small>**Make sure the link ends in jpg/png/gif if you want it to show
+          up**</small>
+        <small>Usually if you right click on an image you can click on "Copy Image
+          Address" the paste it in for proof</small>
+      </div>
+      <button type="submit" class="btn btn-primary my-1">Submit</button>
+    </form>
+  </div>
+</body>
+
 </html>

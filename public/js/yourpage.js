@@ -1,25 +1,56 @@
-fetch(`/api/logs/`)
+fetch(`/api/task/`)
   .then(res => res.json())
-  .then(dailyLogs => {
-    console.log(dailyLogs);
+  .then(task => {
 
-    const logsTable = document.getElementById("logbody");
+    const logsDiv = document.getElementById("logdiv");
 
-    dailyLogs.forEach(log => {
-      let newLog = document.createElement("tr");
-      newLog.innerHTML = `
-        <td><a href="/log/${log._id}"> ${moment(log.createdAt).format(
-        "L"
-      )}</a></td>
-        <td><a href="/log/${log._id}">${log.title}</a></td>
-        <td>${log.text}</td>
+    task.days.forEach(log => {
+      let newLog = document.createElement("div");
+      newLog.setAttribute("class", "list-group-item")
+      let isEditable = moment(log.date).isBetween(moment().subtract(2, 'day'), moment())
+      // console.log(moment.tz(log.date, "America/Chicago").format('YYYY-MM-DD'))
+      // console.log(isEditable)
+
+      if (isEditable && log.completed === false) {
+        newLog.innerHTML = `
+      <h4>Day ${log.day} <span class="badge badge-danger">Not Completed</span><a href="/new/${log.day}" class="btn btn-primary btn-sm text-white ml-2"><i class="fas fa-pencil-alt"></i> Add Log</a></h4> 
       `;
-      logsTable.append(newLog);
+      } else if (isEditable && log.completed === true) {
+        newLog.innerHTML = `
+      <h4>Day ${log.day} <span class="badge badge-success">Completed</span><a class="btn btn-info btn-sm text-white ml-2" href="/log/${task.user}/${log.day}"><i class="far fa-eye"></i> View log</a></h4>
+      `;
+      } else {
+        newLog.innerHTML = `
+      <h4>Day ${log.day} <span class="badge badge-danger">Not Completed</span></h4>
+      `;
+      }
+      logsDiv.append(newLog);
     });
 
-    $(document).ready(function () {
-      $("#logtable").DataTable({
-        order: [[0, "desc"]]
-      });
-    });
-  });
+
+  })
+  .catch(err => {
+    console.error(err)
+  })
+
+let dateInput = document.getElementById("dateinput")
+
+// if (dateInput) {
+//   dateInput.setAttribute("min", moment().format("YYYY-MM-DD"))
+// }
+
+let tzSelect = document.getElementById("tz-select")
+
+if (tzSelect) {
+
+  let tzGuess = moment.tz.guess()
+
+  moment.tz.names().forEach(timezone => {
+    let tzOption = document.createElement("option")
+    tzOption.innerHTML = timezone
+    if (tzGuess === timezone) {
+      tzOption.setAttribute('selected', true)
+    }
+    tzSelect.append(tzOption)
+  })
+}

@@ -1,64 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Your Page</title>
-    <%- include('./partials/head') %>
-  </head>
-  <body>
-    <%- include('./partials/navbar') %>
-    <div class="container">
-      <h1>Your Page</h1>
-      <br />
-      <h2>Hey there, <%= loggedInUser %>!</h2>
-      <br />
-      <% if(hasTask) { %>
-      <h2>Your daily task is: <%= task %></h2>
-      <% } else {%>
-      <h3>What is your daily challenge?</h3>
-      <p>**This can't be changed** (unless you ask nicely)</p>
-      <p>It wiil show up like "Day 23 of (your task here)"</p>
-      <form
-        action="api/add-task/<%= loggedInUser %>"
-        method="post"
-        class="m-2"
-        style="width: 200px;"
-      >
-        <input
-          type="text"
-          class="form-control m-2"
-          name="task"
-          id="taskinput"
-          placeholder="Daily Challenge"
-          required
-          pattern="(.|\s)*\S(.|\s)*"
-        />
 
-        <button type="submit" class="btn btn-primary m-2">Submit</button>
-      </form>
-      <% } %>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Page</title>
+  <%- include('./partials/head') %>
+</head>
 
-      <a href="/new" class="btn btn-success">Add New Log</a>
-      <br />
-      <br />
-      <h2>Completed Tasks:</h2>
-      <table id="logtable">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Title</th>
-            <th>Snippet</th>
-          </tr>
-        </thead>
-        <tbody id="logbody">
-        </tbody>
-      </table>
+<body>
+  <%- include('./partials/navbar') %>
+  <div class="container">
+    <h1>Your Page</h1>
+    <br />
+    <h2>Hey there, <%= loggedInUser %>!</h2>
+    <br />
+    <% if(hasTask) { %>
+    <h2>Your daily task is: <%= task.task %></h2>
+
+    <br />
+    <h2>Logs:</h2>
+    <div id="logdiv" class="day" class="list-group">
+
     </div>
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js" integrity="sha512-rmZcZsyhe0/MAjquhTgiUcb4d9knaFc7b5xAfju483gbEXTkeJRUMIPk6s3ySZMYUHEcjKbjLjyddGWMrNEvZg==" crossorigin="anonymous"></script></script>
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
-    <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
-    <script src="/js/yourpage.js"></script>
-  </body>
-</html>
+    <% } else {%>
+    <h1 class="display">Ready to begin your 30 day challenge?</h1>
+    <h2><b>Start by putting in what your daily task will be in the box below</b></h2>
+
+    <p style="color: red">**This can't be changed** (unless you ask nicely) so be careful of what you put in.</p>
+    <p>It will show up like "Day 23 of (your task here)"</p>
+    <form action="api/add-task/" method="post" class="" style="width: 200px;">
+      <div class="form-group">
+        <input type="text" class="form-control m-2" name="task" id="taskinput" placeholder="Put your daily task here"
+          required pattern="(.|\s)*\S(.|\s)*" />
+      </div>
+      <br />
+      <div class="form-group">
+        <label for="dateinput">When would you like your challenge to start?</label>
+        <input id="dateinput" type="date" name="startdate" placeholder="Start date of task" required>
+      </div>
+
+      <div class="form-group">
+        <label for="tz-select">Select your timezone</label>
+        <select id="tz-select" class="selectpicker" name="timezone"></select>
+      </div>
+
+      <button type="submit" class="btn btn-primary m-2">Submit</button>
+    </form>
+    <% } %>
+
+
+  </div>
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"
+    integrity="sha512-rmZcZsyhe0/MAjquhTgiUcb4d9knaFc7b5xAfju483gbEXTkeJRUMIPk6s3ySZMYUHEcjKbjLjyddGWMrNEvZg=="
+    crossorigin="anonymous"></script>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.31/moment-timezone-with-data-10-year-range.min.js"
+    integrity="sha512-Rb9RCtecTEK3SdnnQhrZx4GM1ascb2CNHybgugRDTriP/b1As79OemxeIT5qs6RMJ/fCpeJrDjtpASh7I7EKMQ=="
+    crossorigin="anonymous"></script>>
+  <script src="/js/yourpage.js"></script>
+</body>
