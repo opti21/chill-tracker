@@ -308,7 +308,7 @@ app.post(
               embed: {
                 title: `${title}`,
                 description: `**Log:**\n${req.body.logtext}`,
-                url: `${process.env.APP_URL}/log/${log._id}`,
+                url: `${process.env.APP_URL}/log/${log.user}/${log.day}`,
                 color: 1168657,
                 author: {
                   name: req.user.login,
@@ -330,7 +330,7 @@ app.post(
               embed: {
                 title: `${title}`,
                 description: `**Log:**\n${req.body.logtext}`,
-                url: `${process.env.APP_URL}/log/${log._id}`,
+                url: `${process.env.APP_URL}/log/${log.user}/${log.day}`,
                 color: 1168657,
                 author: {
                   name: req.user.login,
