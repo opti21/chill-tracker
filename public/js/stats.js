@@ -3,6 +3,7 @@ fetch(`/api/stats/`)
   .then(stats => {
     console.log(stats);
     let statsDiv = document.getElementById("statsdiv");
+    console.log(stats.users)
 
     stats.users.forEach(user => {
       let newUserDiv = document.createElement("div");
@@ -12,24 +13,30 @@ fetch(`/api/stats/`)
       statsDiv.append(newUserDiv);
     });
 
+    console.log(stats.tasks)
     stats.tasks.forEach(task => {
       let userDiv = document.getElementById(`${task.user}`);
-      task.days.forEach(day => {
-        if (day.completed) {
-          let logSquare = document.createElement("a");
-          logSquare.setAttribute("href", `/log/${task.user}/${day.day}`)
-          logSquare.setAttribute("id", `${task.user}day${day.day}`);
-          logSquare.setAttribute("style", "height: 20px; width: 20px;");
-          logSquare.setAttribute("class", "bg-success m-1");
-          userDiv.append(logSquare);
-        } else {
-          let logSquare = document.createElement("div");
-          logSquare.setAttribute("id", `${task.user}day${day.day}`);
-          logSquare.setAttribute("style", "height: 20px; width: 20px;");
-          logSquare.setAttribute("class", "bg-danger m-1");
-          userDiv.append(logSquare);
-        }
+      if (!userDiv) {
+        return
+      } else {
 
-      })
+        task.days.forEach(day => {
+          if (day.completed) {
+            let logSquare = document.createElement("a");
+            logSquare.setAttribute("href", `/log/${task.user}/${day.day}`)
+            logSquare.setAttribute("id", `${task.user}day${day.day}`);
+            logSquare.setAttribute("style", "height: 20px; width: 20px;");
+            logSquare.setAttribute("class", "bg-success m-1");
+            userDiv.append(logSquare);
+          } else {
+            let logSquare = document.createElement("div");
+            logSquare.setAttribute("id", `${task.user}day${day.day}`);
+            logSquare.setAttribute("style", "height: 20px; width: 20px;");
+            logSquare.setAttribute("class", "bg-danger m-1");
+            userDiv.append(logSquare);
+          }
+
+        })
+      }
     });
   });

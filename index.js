@@ -81,7 +81,6 @@ const db = mongoose.connection;
 db.on('error', error => {
   console.error(error);
 });
-db.once('open', () => console.log('Connected to Mongoose ' + Date()));
 
 
 //Routes
@@ -116,6 +115,13 @@ app.get("/feed", async (req, res) => {
 });
 
 app.get("/your-page", loggedIn, async (req, res) => {
+  let alert
+  if (!req.query.a) {
+    alert = ""
+  } else {
+    alert = req.query.a
+  }
+
   try {
     let task
 
@@ -141,7 +147,8 @@ app.get("/your-page", loggedIn, async (req, res) => {
     res.render("your-page", {
       loggedInUser: req.user.login,
       hasTask: hasTask,
-      task: task
+      task: task,
+      alert: alert
     });
   } catch (e) {
     console.error(e)
@@ -163,36 +170,48 @@ app.post(
       });
     }
 
-    // console.log(req.body)
+    const exists = Task.exists({
+      user: req.user.login
+    })
 
-    let dayArray = []
-    let dateFormated = new Date(req.body.startdate).toISOString()
+    if (exists) {
+      let alert = encodeURIComponent('Task already exsists for user')
+      res.redirect('/your-page?a=' + alert)
+    } else {
 
-    for (let i = 0; i < 30; i++) {
-      let day = {
-        day: i + 1,
-        date: moment.tz(req.body.startdate, req.body.timezone).add(i, 'days').format(),
-        completed: false
+      // console.log(req.body)
+
+      let dayArray = []
+      let dateFormated = new Date(req.body.startdate).toISOString()
+
+      for (let i = 0; i < 30; i++) {
+        let day = {
+          day: i + 1,
+          date: moment.tz(req.body.startdate, req.body.timezone).add(i, 'days').format(),
+          completed: false
+        }
+        dayArray.push(day)
       }
-      dayArray.push(day)
+
+      // console.log(dayArray)
+
+      let newTask = new Task({
+        user: req.user.login,
+        task: req.body.task,
+        days: dayArray
+      })
+
+      newTask.save((err, doc) => {
+        if (err) {
+          console.error(err);
+          res.status(500).send("Error adding Task");
+        }
+
+        res.redirect("/your-page");
+      })
     }
 
-    // console.log(dayArray)
 
-    let newTask = new Task({
-      user: req.user.login,
-      task: req.body.task,
-      days: dayArray
-    })
-
-    newTask.save((err, doc) => {
-      if (err) {
-        console.error(err);
-        res.status(500).send("Error adding Task");
-      }
-
-      res.redirect("/your-page");
-    })
 
 
   }
@@ -541,4 +560,9 @@ passport.deserializeUser(function (obj, done) {
 });
 
 const port = process.env.PORT || 3000;
-server.listen(port);
+
+db.once('open', () => {
+  console.log('Connected to Mongoose ' + Date())
+
+  server.listen(port);
+});

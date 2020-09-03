@@ -15,6 +15,14 @@
     <br />
     <h2>Hey there, <%= loggedInUser %>!</h2>
     <br />
+    <% if (alert.length > 0) { %>
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+      <strong>Uh Oh!</strong> You've already created a task!
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <% } %>
     <% if(hasTask) { %>
     <h2>Your daily task is: <%= task.task %></h2>
 

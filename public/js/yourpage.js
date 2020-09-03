@@ -19,6 +19,10 @@ fetch(`/api/task/`)
         newLog.innerHTML = `
       <h4>Day ${log.day} <span class="badge badge-success">Completed</span><a class="btn btn-info btn-sm text-white ml-2" href="/log/${task.user}/${log.day}"><i class="far fa-eye"></i> View log</a></h4>
       `;
+      } else if (log.completed === true) {
+        newLog.innerHTML = `
+      <h4>Day ${log.day} <span class="badge badge-success">Completed</span><a class="btn btn-info btn-sm text-white ml-2" href="/log/${task.user}/${log.day}"><i class="far fa-eye"></i> View log</a></h4>
+      `;
       } else {
         newLog.innerHTML = `
       <h4>Day ${log.day} <span class="badge badge-danger">Not Completed</span></h4>
