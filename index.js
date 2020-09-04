@@ -161,8 +161,7 @@ app.get("/your-page", loggedIn, async (req, res) => {
 app.post(
   "/api/add-task/",
   loggedIn,
-  [body("task").isString().trim()],
-  (req, res) => {
+  [body("task").isString().trim()], async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(422).json({
@@ -170,7 +169,7 @@ app.post(
       });
     }
 
-    const exists = Task.exists({
+    const exists = await Task.exists({
       user: req.user.login
     })
 
