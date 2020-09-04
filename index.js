@@ -123,23 +123,20 @@ app.get("/your-page", loggedIn, async (req, res) => {
   }
 
   try {
-    let task
 
-    await Task.findOne({
+    // console.log(req.user.login)
+
+    let task = await Task.findOne({
       user: req.user.login
     }, (err, doc) => {
       if (err) console.error(err);
       // console.log(doc)
-      if (doc) {
-        task = doc
-      } else {
-        task = undefined
-      }
     })
 
     // console.log(task)
+
     let hasTask;
-    if (task === undefined) {
+    if (!task) {
       hasTask = false;
     } else {
       hasTask = true;
@@ -313,7 +310,6 @@ app.post(
             title = req.body.logtitle
           }
 
-
           if (
             req.body.proof.includes("jpg") ||
             req.body.proof.includes("jpeg") ||
@@ -358,8 +354,14 @@ app.post(
             };
           }
 
+
           console.log(logEmbed)
           discordChannel.send(logEmbed);
+
+          // Send regular message with link proof so discord generates a link preview
+          if (req.body.proof.length > 0) {
+            discordChannel.send('Proof: ' + req.body.proof)
+          }
         }
       } catch (err) {
         console.error(err);
