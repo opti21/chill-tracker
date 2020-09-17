@@ -21,6 +21,7 @@ const loadFeed = (page = 0) => {
         canLoadMore = false;
         return;
       }
+      console.log(logs)
 
       logs.forEach(log => {
         const container = document.createElement("div");
@@ -77,7 +78,7 @@ const loadFeed = (page = 0) => {
         gallery.href = log.proof;
         galleryImage.src = `https://external-content.duckduckgo.com/iu/?u=${log.proof}`;
         title.id = `${log.user}title`;
-        title.href = `/log/${log._id}`;
+        title.href = `/log/${log.user}/${log.day}`;
 
         if (log.title === undefined) {
           console.log("No Title")

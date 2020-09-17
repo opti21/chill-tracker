@@ -354,9 +354,11 @@ app.get("/api/feed", async (req, res) => {
         const user = await User.findOne({
           username: log.user
         });
+        console.log(user)
         return {
           ...log.toObject(),
-          task: user && user.task
+          task: user && user.task,
+          pfp: user.profile_image_url
         };
       })
     )
@@ -393,7 +395,7 @@ app.get("/log/:user/:day", loggedIn, async (req, res) => {
       logOwner = false;
     }
 
-    console.log(dailyLog);
+    //console.log(dailyLog);
 
     res.render("log", {
       loggedInUser: req.user.login,
