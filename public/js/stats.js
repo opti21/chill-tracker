@@ -9,16 +9,25 @@ fetch(`/api/stats/`)
       let newUserDiv = document.createElement("div");
       newUserDiv.setAttribute("id", `${user.username}`);
       newUserDiv.setAttribute("class", "d-flex flex-wrap border p-1 m-2");
-      newUserDiv.innerHTML = `<div class="mr-2 border-right"><span><img class="m-1" style="height: 20px; width: 20px;" src="${user.profile_pic_url}"/></span><a class="mr-2" href="/user/${user.username}">${user.username}</a></div>`;
+      newUserDiv.innerHTML = `<div class="mr-2 border-right"><span><img class="m-1" style="height: 20px; width: 20px;" src="${user.profile_pic_url}"/></span><a class="mr-2" href="/user/${user.username}">${user.username}</a></div>
+      <div id="${user.username}-ph" class="badge badge-sm badge-primary text-white">User hasn't created a task yet</div>
+      `;
       statsDiv.append(newUserDiv);
     });
 
     console.log(stats.tasks)
     stats.tasks.forEach(task => {
       let userDiv = document.getElementById(`${task.user}`);
+      let placeholder = document.getElementById(`${task.user}-ph`)
+
       if (!userDiv) {
         return
       } else {
+        if (!placeholder) {
+          return
+        } else {
+          placeholder.remove()
+        }
 
         task.days.forEach(day => {
           if (day.completed) {

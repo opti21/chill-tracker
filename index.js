@@ -297,7 +297,6 @@ app.post(
         if (!discordChannel) {
           return res.redirect("/your-page?success=true");
         } else {
-          let logEmbed;
           let exclamations = ["Great job", "Way to go", "Sweet as"];
           let exclamation =
             exclamations[Math.floor(Math.random() * exclamations.length)];
@@ -310,36 +309,7 @@ app.post(
             title = req.body.logtitle
           }
 
-          if (
-            req.body.proof.includes("jpg") ||
-            req.body.proof.includes("jpeg") ||
-            req.body.proof.includes("png") ||
-            req.body.proof.includes("gif")
-          ) {
-            // if URL does have image tag
-            logEmbed = {
-              content: `${req.user.login} added a new log. ${exclamation} ${req.user.login}!`,
-              embed: {
-                title: `${title}`,
-                description: `**Log:**\n${req.body.logtext}`,
-                url: `${process.env.APP_URL}/log/${log.user}/${log.day}`,
-                color: 1168657,
-                author: {
-                  name: req.user.login,
-                  icon_url: req.user.profile_pic_url
-                },
-                fields: [{
-                  name: "Proof:",
-                  value: `${req.body.proof}\n`
-                }],
-                image: {
-                  url: req.body.proof
-                }
-              }
-            };
-          } else {
-            // if URL doesn't have image tag
-            logEmbed = {
+          let logEmbed = {
               content: `${req.user.login} added a new log. ${exclamation} ${req.user.login}!`,
               embed: {
                 title: `${title}`,
@@ -352,15 +322,13 @@ app.post(
                 },
               }
             };
-          }
-
 
           console.log(logEmbed)
           discordChannel.send(logEmbed);
 
           // Send regular message with link proof so discord generates a link preview
           if (req.body.proof.length > 0) {
-            discordChannel.send('Proof: ' + req.body.proof)
+            discordChannel.send(`${req.user.login}'s proof: ` + req.body.proof)
           }
         }
       } catch (err) {
