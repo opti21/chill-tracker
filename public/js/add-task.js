@@ -1,9 +1,3 @@
-let dateInput = document.getElementById("dateinput")
-
-// if (dateInput) {
-//   dateInput.setAttribute("min", moment().format("YYYY-MM-DD"))
-// }
-
 let tzSelect = document.getElementById("tz-select")
 
 if (tzSelect) {

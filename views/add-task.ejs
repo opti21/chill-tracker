@@ -11,27 +11,11 @@
 <body>
   <%- include('./partials/navbar') %>
   <div class="container">
-    <h1>Your Page</h1>
-    <br />
-    <h2>Hey there, <%= loggedInUser %>!</h2>
-    <br />
-
-    <% if(hasTasks) { %>
-
-    <br />
-    <h2>Tasks:</h2>
-    <a class="btn btn-success" href="/add-task"> Add new Task</a>
-
-    <% tasks.forEach(task => { %>
-    <div class="border mt-2 p-2"><span><h3><%= task.task %></h3><a href="/edit-task/<%= task.id%>"class="btn btn-info">View Task / Add Log</a></span></div>
-    <% }) %>
-
-    <% } else {%>
-    <h1 class="display">Ready to begin your 30 day challenge?</h1>
+    <h1 class="display">Ready to begin a new 30 day challenge?</h1>
     <h2><b>Start by putting in what your daily task will be in the box below</b></h2>
 
     <p style="color: red">**This can't be changed** (unless you ask nicely) so be careful of what you put in.</p>
-    <p>It will show up like "Day 23 of (your task here)"</p>
+    <p>It will show up like "Day 23 of Zentangles"</p>
     <form action="api/add-task/" method="post" class="" style="width: 200px;">
       <div class="form-group">
         <input type="text" class="form-control m-2" name="task" id="taskinput" placeholder="Put your daily task here"
@@ -50,7 +34,7 @@
 
       <button type="submit" class="btn btn-primary m-2">Submit</button>
     </form>
-    <% } %>
+  </div>
 
 
   </div>
@@ -62,5 +46,5 @@
     src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.31/moment-timezone-with-data-10-year-range.min.js"
     integrity="sha512-Rb9RCtecTEK3SdnnQhrZx4GM1ascb2CNHybgugRDTriP/b1As79OemxeIT5qs6RMJ/fCpeJrDjtpASh7I7EKMQ=="
     crossorigin="anonymous"></script>
-  <script src="/js/yourpage.js"></script>
+  <script src="/js/add-task.js"></script>
 </body>

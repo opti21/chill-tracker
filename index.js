@@ -7,49 +7,37 @@ const twitchStrategy = require("passport-twitch.js").Strategy;
 const bodyParser = require("body-parser");
 const cookieSession = require("cookie-session");
 const mongoose = require("mongoose");
-const {
-  body,
-  validationResult
-} = require("express-validator");
+const { body, validationResult } = require("express-validator");
 const helmet = require("helmet");
-const moment = require("moment-timezone")
+const moment = require("moment-timezone");
+const { nanoid } = require("nanoid");
 
 // Discord bot
-const Discord = require("discord.js");
-const discordClient = new Discord.Client();
-
-discordClient.on("ready", () => {
-  console.log(`Logged in as ${discordClient.user.tag}!`);
-});
-
-discordClient.on("message", msg => {
-  if (msg.content === "ping") {
-    msg.reply("pong");
-  }
-});
-
-discordClient.login(process.env.DISCORD_TOKEN);
 
 // Models
 const User = require("./models/users");
-const Task = require("./models/Tasks");
-const DailyLog = require("./models/dailyLogs")
+const Task = require("./models/newTasks");
+const oldTask = require("./models/Tasks");
+const DailyLog = require("./models/newDailyLogs");
+const oldDailyLog = require("./models/dailyLogs");
 
 app.use(helmet());
 app.set("trust proxy", 1);
 app.set("views", "./views");
 app.set("view engine", "ejs");
 app.use(express.static("public"));
-app.use(bodyParser.urlencoded({
-  extended: true
-}));
+app.use(
+  bodyParser.urlencoded({
+    extended: true,
+  })
+);
 app.use(bodyParser.json());
 app.use(
   cookieSession({
     name: "session",
     secret: `${process.env.SESSION_SECRET}`,
     saveUninitialized: false,
-    resave: false
+    resave: false,
   })
 );
 app.use(passport.initialize());
@@ -57,10 +45,11 @@ app.use(passport.session());
 
 mongoose
   .connect(
-    `mongodb+srv://chilltrack:${process.env.DB_PASS}@cluster0-h53nv.gcp.mongodb.net/chilltrack?retryWrites=true&w=majority`, {
+    `mongodb+srv://chilltrack:${process.env.DB_PASS}@cluster0-h53nv.gcp.mongodb.net/chilltrack?retryWrites=true&w=majority`,
+    {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      useCreateIndex: true
+      useCreateIndex: true,
     }
   )
   .catch(function (err) {
@@ -78,20 +67,56 @@ function loggedIn(req, res, next) {
 
 const db = mongoose.connection;
 
-db.on('error', error => {
+db.on("error", (error) => {
   console.error(error);
 });
 
+async function updateTasks() {
+  let oldTasks = await oldTask.find({});
+
+  oldTasks.forEach(async (task) => {
+    console.log(task.user)
+    let newID = nanoid(10);
+    let user = await User.findOne({ username: task.user });
+    let newTask = new Task({
+      id: newID,
+      user: user.twitch_id,
+      task: task.task,
+      days: task.days,
+    });
+
+    await newTask.save();
+    console.log("updated task")
+
+    let oldDailyLogs = await oldDailyLog.find({ user: task.user });
+    oldDailyLogs.forEach(async (log) => {
+      let newlog = new DailyLog({
+        taskID: newID,
+        user: user.twitch_id,
+        day: log.day,
+        title: log.title,
+        text: log.text,
+        proof: log.proof,
+        completed: log.completed,
+      });
+
+      await newlog.save();
+      console.log("updated log")
+    });
+  });
+}
+
+updateTasks();
 
 //Routes
 app.get("/", async (req, res) => {
   let loggedInUser = req.user || false;
   let dailyLogs = await DailyLog.find().limit(10).sort({
-    createdAt: -1
+    createdAt: -1,
   });
   res.render("feed", {
     loggedInUser: loggedInUser,
-    dailyLogs: dailyLogs
+    dailyLogs: dailyLogs,
   });
 });
 
@@ -99,7 +124,7 @@ app.get("/auth/twitch", passport.authenticate("twitch.js"));
 app.get(
   "/auth/twitch/callback",
   passport.authenticate("twitch.js", {
-    failureRedirect: "/"
+    failureRedirect: "/",
   }),
   function (req, res) {
     // Successful authentication.
@@ -110,113 +135,68 @@ app.get(
 app.get("/feed", async (req, res) => {
   let user = req.user || false;
   res.render("feed", {
-    loggedInUser: user
+    loggedInUser: user,
+  });
+});
+
+app.get("/add-task", loggedIn, (req, res) => {
+  let user = req.user || false;
+  res.render("add-task", {
+    loggedInUser: user,
   });
 });
 
 app.get("/your-page", loggedIn, async (req, res) => {
-  let alert
+  let alert;
   if (!req.query.a) {
-    alert = ""
+    alert = "";
   } else {
-    alert = req.query.a
+    alert = req.query.a;
   }
 
   try {
-
     // console.log(req.user.login)
 
-    let task = await Task.findOne({
-      user: req.user.login
-    }, (err, doc) => {
-      if (err) console.error(err);
-      // console.log(doc)
-    })
+    let tasks = await Task.find(
+      {
+        user: req.user.id,
+      },
+      (err, doc) => {
+        if (err) console.error(err);
+        // console.log(doc)
+      }
+    );
 
     // console.log(task)
 
     let hasTask;
-    if (!task) {
-      hasTask = false;
+    if (tasks.length === 0) {
+      hasTasks = false;
     } else {
-      hasTask = true;
+      hasTasks = true;
     }
     res.render("your-page", {
       loggedInUser: req.user.login,
-      hasTask: hasTask,
-      task: task,
-      alert: alert
+      hasTasks: hasTasks,
+      tasks: tasks,
     });
   } catch (e) {
-    console.error(e)
-    res.status(500).send(`${e}`)
+    console.error(e);
+    res.status(500).send(`${e}`);
   }
-
 });
 
 // Create new task
-app.post(
-  "/api/add-task/",
-  loggedIn,
-  [body("task").isString().trim()], async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({
-        errors: errors.array()
-      });
-    }
+// TODO: Move rest of routes to files
+const apiRoute = require("./routes/api");
 
-    const exists = await Task.exists({
-      user: req.user.login
-    })
+app.use("/api", apiRoute);
 
-    if (exists) {
-      let alert = encodeURIComponent('Task already exsists for user')
-      res.redirect('/your-page?a=' + alert)
-    } else {
-
-      // console.log(req.body)
-
-      let dayArray = []
-      let dateFormated = new Date(req.body.startdate).toISOString()
-
-      for (let i = 0; i < 30; i++) {
-        let day = {
-          day: i + 1,
-          date: moment.tz(req.body.startdate, req.body.timezone).add(i, 'days').format(),
-          completed: false
-        }
-        dayArray.push(day)
-      }
-
-      // console.log(dayArray)
-
-      let newTask = new Task({
-        user: req.user.login,
-        task: req.body.task,
-        days: dayArray
-      })
-
-      newTask.save((err, doc) => {
-        if (err) {
-          console.error(err);
-          res.status(500).send("Error adding Task");
-        }
-
-        res.redirect("/your-page");
-      })
-    }
-
-
-
-
-  }
-);
-
-app.get("/new/:day", loggedIn, (req, res) => {
-  res.render("new", {
+app.get("/newlog/:task/:day", loggedIn, (req, res) => {
+  res.render("new-log", {
     loggedInUser: req.user.login,
-    logDay: req.params.day
+    logDay: req.params.day,
+    taskID: req.params.task,
   });
 });
 
@@ -227,172 +207,78 @@ app.get("/stats", async (req, res) => {
   res.render("stats", {
     loggedInUser: loggedInUser,
     userCount: userCount,
-    logCount: logCount
+    logCount: logCount,
   });
 });
-
-app.post(
-  "/api/newlog/:day",
-  loggedIn,
-  [
-    body("logtext").isString().not().isEmpty().trim(),
-    body("proof").isString().trim()
-  ],
-  async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({
-        errors: errors.array()
-      });
-    }
-    let exists = DailyLog.exists({
-      user: req.user.login,
-      day: req.query.day
-    });
-
-    let newLog = new DailyLog({
-      user: req.user.login,
-      title: req.body.logtitle,
-      text: req.body.logtext,
-      proof: req.body.proof,
-      day: req.params.day
-    });
-
-    newLog.save(async (err, log) => {
-      if (err) {
-        console.error(err);
-        res.status(500).send("Error creating new log");
-      }
-
-      let oldTask = await Task.findOne({
-        user: req.user.login
-      })
-
-      let oldDays = oldTask.days
-
-      oldDays[req.params.day - 1] = {
-        day: oldDays[req.params.day - 1].day,
-        date: oldDays[req.params.day - 1].date,
-        completed: true
-      }
-
-      let newDays = oldDays
-
-      await Task.findOneAndUpdate({
-        user: req.user.login
-      }, {
-        days: newDays
-      }, {
-        useFindAndModify: false
-      }, (err, doc) => {
-        // console.log('Task Updated')
-        // console.log(doc)
-      })
-
-      try {
-        let discordChannel = discordClient.channels.cache.find(
-          ch => ch.name === "30-day-challenge📅"
-        );
-        //console.log(discordChannel);
-        if (!discordChannel) {
-          return res.redirect("/your-page?success=true");
-        } else {
-          let exclamations = ["Great job", "Way to go", "Sweet as"];
-          let exclamation =
-            exclamations[Math.floor(Math.random() * exclamations.length)];
-
-          let title
-
-          if (req.body.logtitle === undefined) {
-            title = "No Title"
-          } else {
-            title = req.body.logtitle
-          }
-
-          let logEmbed = {
-              content: `${req.user.login} added a new log. ${exclamation} ${req.user.login}!`,
-              embed: {
-                title: `${title}`,
-                description: `**Log:**\n${req.body.logtext}`,
-                url: `${process.env.APP_URL}/log/${log.user}/${log.day}`,
-                color: 1168657,
-                author: {
-                  name: req.user.login,
-                  icon_url: req.user.profile_pic_url
-                },
-              }
-            };
-
-          console.log(logEmbed)
-          discordChannel.send(logEmbed);
-
-          // Send regular message with link proof so discord generates a link preview
-          if (req.body.proof.length > 0) {
-            discordChannel.send(`${req.user.login}'s proof: ` + req.body.proof)
-          }
-        }
-      } catch (err) {
-        console.error(err);
-      }
-
-      res.redirect("/your-page?success=true");
-    });
-  }
-);
-
-app.get("/api/feed", async (req, res) => {
-  let logs = await DailyLog.find()
-    .sort({
-      createdAt: -1
-    })
-    .limit(10)
-    .skip(10 * Number(req.query.page || 0));
-
-  res.json({
-    logs: await Promise.all(
-      logs.map(async log => {
-        const user = await User.findOne({
-          username: log.user
-        });
-        console.log(user)
-        return {
-          ...log.toObject(),
-          task: user && user.task,
-          pfp: user.profile_image_url
-        };
-      })
-    )
-  });
-});
-
-
 
 // Public User page
 app.get("/user/:user/", async (req, res) => {
   let loggedInUser = req.user || false;
   let publicUser = req.params.user;
   let userTask = await User.findOne({
-    username: publicUser
-  }, "task -_id");
+    username: publicUser,
+  });
   res.render("publicUser", {
     loggedInUser: loggedInUser,
     publicUser: publicUser,
-    userTask: userTask
+    userTask: userTask,
+  });
+});
+
+//Task page
+app.get("/edit-task/:id", loggedIn, async (req, res) => {
+  let loggedInUser = req.user || false;
+  let task = await Task.findOne({ id: req.params.id });
+
+  let isTaskOwner;
+  if (task.user != req.user.id) {
+    isTaskOwner = false;
+  } else {
+    isTaskOwner = true;
+  }
+
+  console.log(isTaskOwner);
+
+  res.render("task", {
+    loggedInUser: loggedInUser,
+    isTaskOwner: isTaskOwner,
+    task: task,
+  });
+});
+
+app.get("/task/:id", async (req, res) => {
+  let loggedInUser = req.user || false;
+  let task = await Task.findOne({ id: req.params.id });
+
+  res.render("public-task", {
+    loggedInUser: loggedInUser,
+    task: task,
   });
 });
 
 // Specific Day
-app.get("/log/:user/:day", loggedIn, async (req, res) => {
+app.get("/log/:task/:day", loggedIn, async (req, res) => {
   try {
     let dailyLog = await DailyLog.findOne({
-      user: req.params.user,
-      day: req.params.day
+      taskID: req.params.task,
+      day: req.params.day,
     });
+
+    let task = await Task.findOne({
+      user: dailyLog.user,
+      id: req.params.task,
+    });
+
+    let logOwner = await User.findOne({
+      twitch_id: dailyLog.user,
+    });
+    console.log(logOwner.username);
+
     let isLogOwner;
-    if (req.user.login === req.params.user) {
-      logOwner = true;
+    if (dailyLog.user === req.user.id) {
+      isLogOwner = true;
     } else {
-      logOwner = false;
+      isLogOwner = false;
     }
 
     //console.log(dailyLog);
@@ -403,63 +289,13 @@ app.get("/log/:user/:day", loggedIn, async (req, res) => {
       logText: dailyLog.text,
       logProof: decodeURIComponent(dailyLog.proof),
       logDay: dailyLog.day,
+      task: task,
       isLogOwner: isLogOwner,
-      logOwner: dailyLog.user
+      logOwner: logOwner.username,
     });
   } catch (e) {
     console.error(e);
   }
-});
-
-app.get("/api/task", loggedIn, async (req, res) => {
-  let task = await Task.findOne({
-    user: req.user.login
-  });
-  // console.log(task)
-  if (!task) {
-    res.status(204).json("No Task")
-  } else {
-    // task.days.forEach(log => {
-    //   console.log(moment(log.date).utc().format())
-
-    // });
-    res.status(200).json({
-      user: req.user.login,
-      days: task.days,
-    });
-  }
-});
-
-app.get("/api/logs/:user", async (req, res) => {
-  let dailyLogs = await DailyLog.find({
-    user: req.params.user
-  });
-  res.status(200).send(dailyLogs);
-});
-
-app.get("/api/stats", async (req, res) => {
-  let users = await User.find({}, "username profile_pic_url -_id");
-  let tasks = await Task.find({});
-  let stats = {
-    users: users,
-    tasks: tasks
-  };
-  res.status(200).send(stats);
-});
-
-app.get("/api/user-tasks", async (req, res) => {
-  let tasks = await User.find({}, "username task -_id");
-  res.send(tasks);
-});
-
-app.get("/api/user-pic/:user", async (req, res) => {
-  let picObject = await User.findOne({
-      username: req.params.user
-    },
-    "profile_pic_url -_id"
-  );
-  let userPic = picObject.profile_pic_url;
-  res.redirect(userPic);
 });
 
 app.get("/logout", async function (req, res) {
@@ -468,7 +304,7 @@ app.get("/logout", async function (req, res) {
     req.user = null;
     req.logout();
     res.render("bye", {
-      loggedInUser: false
+      loggedInUser: false,
     });
   } catch (err) {
     console.error(err);
@@ -477,22 +313,23 @@ app.get("/logout", async function (req, res) {
 
 app.get("/login", async function (req, res) {
   res.render("login", {
-    loggedInUser: false
+    loggedInUser: false,
   });
 });
 
 passport.use(
-  new twitchStrategy({
+  new twitchStrategy(
+    {
       clientID: process.env.TWITCH_CLIENTID,
       clientSecret: process.env.TWITCH_SECRET,
       callbackURL: `${process.env.APP_URL}/auth/twitch/callback`,
-      scope: ""
+      scope: "",
     },
     async function (accessToken, refreshToken, profile, done) {
       try {
         User.findOne({
-            twitch_id: profile.id
-          })
+          twitch_id: profile.id,
+        })
           .exec()
           .then(function (UserSearch) {
             if (UserSearch === null) {
@@ -501,7 +338,7 @@ passport.use(
                 username: profile.login,
                 display_name: profile.display_name,
                 profile_pic_url: profile.profile_image_url,
-                provider: "twitch"
+                provider: "twitch",
               });
               console.log("New user created");
 
@@ -512,7 +349,7 @@ passport.use(
               return done(null, profile);
             }
           })
-          .catch(err => {
+          .catch((err) => {
             console.error(err);
           });
       } catch (err) {
@@ -532,8 +369,8 @@ passport.deserializeUser(function (obj, done) {
 
 const port = process.env.PORT || 3000;
 
-db.once('open', () => {
-  console.log('Connected to Mongoose ' + Date())
+db.once("open", () => {
+  console.log("Connected to Mongoose " + Date());
 
   server.listen(port);
 });

@@ -17,6 +17,7 @@ const loadFeed = (page = 0) => {
   fetch(`/api/feed/?page=${page}`)
     .then(res => res.json())
     .then(({ logs }) => {
+      console.log(logs)
       if (logs.length === 0) {
         canLoadMore = false;
         return;
@@ -78,7 +79,7 @@ const loadFeed = (page = 0) => {
         gallery.href = log.proof;
         galleryImage.src = `https://external-content.duckduckgo.com/iu/?u=${log.proof}`;
         title.id = `${log.user}title`;
-        title.href = `/log/${log.user}/${log.day}`;
+        title.href = `/log/${log.taskID}/${log.day}`;
 
         if (log.title === undefined) {
           console.log("No Title")
@@ -87,11 +88,11 @@ const loadFeed = (page = 0) => {
           title.textContent = log.title;
         }
 
-        userImg.href = `/user/${log.user}`;
+        userImg.href = `/user/${log.username}`;
         userImg.id = `${log.user}pic`;
         userImage.src = `/api/user-pic/${log.user}`;
-        user.href = `/user/${log.user}`;
-        user.textContent = log.user;
+        user.href = `/user/${log.username}`;
+        user.textContent = log.username;
         text.textContent = log.text;
         proof.href = proof.textContent = log.proof;
 

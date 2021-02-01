@@ -12,6 +12,7 @@
   <%- include('./partials/navbar') %>
   <div class="container">
     <h1><%= logOwner %>'s Day <%= logDay %> Log</h1>
+    <p>Task: <a href="/task/<%= task.id %>"><%= task.task %></a></p>
     <% if(isLogOwner) {%>
     <!-- <a href="/editlog/<%= dailyLog.day %>" class="btn btn-primary"
         >Edit <%= dailyLog.day %></a

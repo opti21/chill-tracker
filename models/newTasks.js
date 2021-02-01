@@ -2,8 +2,11 @@ const mongoose = require("mongoose");
 
 const taskSchema = new mongoose.Schema(
   {
-    user: {
+    id: {
       type: String,
+    },
+    user: {
+      type: Number,
     },
     task: {
       type: String,
@@ -19,4 +22,4 @@ const taskSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("task", taskSchema);
+module.exports = mongoose.model("newtask", taskSchema);
