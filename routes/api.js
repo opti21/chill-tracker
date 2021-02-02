@@ -1,8 +1,8 @@
 const router = require("express").Router();
 const moment = require("moment-timezone");
 const User = require("../models/users");
-const Task = require("../models/Tasks");
-const DailyLog = require("../models/dailyLogs");
+const Task = require("../models/newTasks");
+const DailyLog = require("../models/newDailyLogs");
 const { nanoid } = require("nanoid");
 const discordClient = require("../discordClient");
 const { body, validationResult } = require("express-validator");
@@ -51,7 +51,7 @@ router.post(
       user: req.user.id,
       task: req.body.task,
       days: dayArray,
-      timezone: req.body.timezone
+      timezone: req.body.timezone,
     });
 
     newTask
@@ -98,7 +98,7 @@ router.post(
 
       let oldTask = await Task.findOne({
         id: req.params.taskid,
-        user: req.user.id
+        user: req.user.id,
       });
 
       let oldDays = oldTask.days;
@@ -114,7 +114,7 @@ router.post(
       await Task.findOneAndUpdate(
         {
           user: req.user.id,
-          id: req.params.taskid
+          id: req.params.taskid,
         },
         {
           days: newDays,
@@ -130,7 +130,7 @@ router.post(
 
       try {
         let discordChannel = discordClient.channels.cache.find(
-          (ch) => ch.name === "30-day-challenge-test"
+          (ch) => ch.name === "30-day-challenge📅"
         );
         //console.log(discordChannel);
         if (!discordChannel) {
@@ -162,7 +162,7 @@ router.post(
             },
           };
 
-          console.log(logEmbed);
+          // console.log(logEmbed);
           discordChannel.send(logEmbed);
 
           // Send regular message with link proof so discord generates a link preview
@@ -180,15 +180,15 @@ router.post(
 );
 
 router.get("/task/:id", loggedIn, (req, res) => {
-  Task.findOne({id:req.params.id})
-    .then(result => {
-      res.send(result)
+  Task.findOne({ id: req.params.id })
+    .then((result) => {
+      res.send(result);
     })
     .catch((err) => {
-      console.error(err)
-      res.status(500).send("Error finding task => " + err)
-    })
-})
+      console.error(err);
+      res.status(500).send("Error finding task => " + err);
+    });
+});
 
 router.get("/feed", async (req, res) => {
   let logs = await DailyLog.find()
@@ -197,7 +197,7 @@ router.get("/feed", async (req, res) => {
     })
     .limit(10)
     .skip(10 * Number(req.query.page || 0));
-  console.log(logs)
+  // console.log(logs)
 
   res.json({
     logs: await Promise.all(
@@ -209,7 +209,7 @@ router.get("/feed", async (req, res) => {
         return {
           ...log.toObject(),
           pfp: user.profile_pic_url,
-          username: user.username
+          username: user.username,
         };
       })
     ),
@@ -218,8 +218,8 @@ router.get("/feed", async (req, res) => {
 
 router.get("/logs/:user", async (req, res) => {
   let user = await User.findOne({
-    username: req.params.user
-  })
+    username: req.params.user,
+  });
   let dailyLogs = await DailyLog.find({
     user: user.twitch_id,
   });

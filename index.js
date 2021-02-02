@@ -17,9 +17,7 @@ const { nanoid } = require("nanoid");
 // Models
 const User = require("./models/users");
 const Task = require("./models/newTasks");
-const oldTask = require("./models/Tasks");
 const DailyLog = require("./models/newDailyLogs");
-const oldDailyLog = require("./models/dailyLogs");
 
 app.use(helmet());
 app.set("trust proxy", 1);
@@ -75,7 +73,7 @@ async function updateTasks() {
   let oldTasks = await oldTask.find({});
 
   oldTasks.forEach(async (task) => {
-    console.log(task.user)
+    // console.log(task.user)
     let newID = nanoid(10);
     let user = await User.findOne({ username: task.user });
     let newTask = new Task({
@@ -106,7 +104,7 @@ async function updateTasks() {
   });
 }
 
-updateTasks();
+// updateTasks();
 
 //Routes
 app.get("/", async (req, res) => {
@@ -237,7 +235,7 @@ app.get("/edit-task/:id", loggedIn, async (req, res) => {
     isTaskOwner = true;
   }
 
-  console.log(isTaskOwner);
+  // console.log(isTaskOwner);
 
   res.render("task", {
     loggedInUser: loggedInUser,
@@ -272,7 +270,7 @@ app.get("/log/:task/:day", loggedIn, async (req, res) => {
     let logOwner = await User.findOne({
       twitch_id: dailyLog.user,
     });
-    console.log(logOwner.username);
+    // console.log(logOwner.username);
 
     let isLogOwner;
     if (dailyLog.user === req.user.id) {
