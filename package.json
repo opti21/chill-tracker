@@ -15,7 +15,7 @@
     "discord.js": "^12.3.1",
     "dotenv": "^8.2.0",
     "ejs": "^3.1.5",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "express-validator": "^6.6.1",
     "helmet": "^3.23.3",
     "moment": "^2.28.0",
